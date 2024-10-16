@@ -15,6 +15,9 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "Summary.h"
+
+#ifndef NO_LOGS
 
 #include <cinttypes>
 #include <cstdio>
@@ -28,7 +31,6 @@
 #include "core/Controller.h"
 #include "crypto/common/Assembly.h"
 #include "crypto/common/VirtualMemory.h"
-#include "Summary.h"
 #include "version.h"
 
 
@@ -203,9 +205,11 @@ static void print_commands(Config *)
 
 } // namespace xmrig
 
+#endif // NO_LOGS
 
 void xmrig::Summary::print(Controller *controller)
 {
+#ifndef NO_LOGS
     const auto config = controller->config();
 
     config->printVersions();
@@ -216,6 +220,7 @@ void xmrig::Summary::print(Controller *controller)
     config->pools().print();
 
     print_commands(config);
+#endif // NO_LOGS
 }
 
 

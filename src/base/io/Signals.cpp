@@ -60,6 +60,7 @@ xmrig::Signals::~Signals()
 
 void xmrig::Signals::onSignal(uv_signal_t *handle, int signum)
 {
+#ifndef NO_SIGNALS
     switch (signum)
     {
     case SIGHUP:
@@ -83,6 +84,6 @@ void xmrig::Signals::onSignal(uv_signal_t *handle, int signum)
     default:
         break;
     }
-
+#endif // NO_SIGNALS
     static_cast<Signals *>(handle->data)->m_listener->onSignal(signum);
 }

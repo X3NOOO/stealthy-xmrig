@@ -81,6 +81,7 @@ public:
 
     void print(Log::Level level, const char *fmt, va_list args)
     {
+#ifndef NO_LOGS
         size_t size   = 0;
         size_t offset = 0;
 
@@ -117,6 +118,7 @@ public:
             fputs(txt.c_str(), stdout);
             fflush(stdout);
         }
+#endif // NO_LOGS
     }
 
 
@@ -227,6 +229,7 @@ void xmrig::Log::init()
 
 void xmrig::Log::print(const char *fmt, ...)
 {
+#ifndef NO_LOGS
     if (!d) {
         return;
     }
@@ -237,11 +240,13 @@ void xmrig::Log::print(const char *fmt, ...)
     d->print(NONE, fmt, args);
 
     va_end(args);
+#endif // NO_LOGS
 }
 
 
 void xmrig::Log::print(Level level, const char *fmt, ...)
 {
+#ifndef NO_LOGS
     if (!d) {
         return;
     }
@@ -252,4 +257,5 @@ void xmrig::Log::print(Level level, const char *fmt, ...)
     d->print(level, fmt, args);
 
     va_end(args);
+#endif // NO_LOGS
 }

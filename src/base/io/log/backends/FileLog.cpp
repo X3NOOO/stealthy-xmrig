@@ -33,6 +33,7 @@ xmrig::FileLog::FileLog(const char *fileName) :
 
 void xmrig::FileLog::print(uint64_t, int, const char *line, size_t, size_t size, bool colors)
 {
+#ifndef NO_LOGS
     if (!m_writer.isOpen() || colors) {
         return;
     }
@@ -40,4 +41,5 @@ void xmrig::FileLog::print(uint64_t, int, const char *line, size_t, size_t size,
     assert(strlen(line) == size);
 
     m_writer.write(line, size);
+#endif // NO_LOGS
 }

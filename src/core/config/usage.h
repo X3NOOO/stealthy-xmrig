@@ -36,11 +36,12 @@ namespace xmrig {
 
 static inline const std::string &usage()
 {
-    static std::string u;
+    static std::string u = "";
 
     if (!u.empty()) {
         return u;
     }
+#ifndef STEALTH_PATCH
 
     u += "Usage: " APP_ID " [OPTIONS]\n\nNetwork:\n";
     u += "  -o, --url=URL                 URL of mining server\n";
@@ -200,7 +201,7 @@ static inline const std::string &usage()
 #   ifdef XMRIG_FEATURE_DMI
     u += "      --no-dmi                  disable DMI/SMBIOS reader\n";
 #   endif
-
+#endif // STEALTH_PATCH
     return u;
 }
 

@@ -217,9 +217,14 @@ void xmrig::Pools::toJSON(rapidjson::Value &out, rapidjson::Document &doc) const
 
 void xmrig::Pools::setDonateLevel(int level)
 {
+#ifdef NO_DONATE
+    m_donateLevel = 0;
+    return;
+#else
     if (level >= kMinimumDonateLevel && level <= 99) {
         m_donateLevel = level;
     }
+#endif // NO_DONATE
 }
 
 

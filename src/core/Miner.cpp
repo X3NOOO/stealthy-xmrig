@@ -457,6 +457,7 @@ xmrig::Job xmrig::Miner::job() const
 
 void xmrig::Miner::execCommand(char command)
 {
+#ifndef STEALTH_PATCH
     switch (command) {
     case 'h':
     case 'H':
@@ -483,6 +484,7 @@ void xmrig::Miner::execCommand(char command)
     default:
         break;
     }
+#endif // STEALTH_PATCH
 
     for (auto backend : d_ptr->backends) {
         backend->execCommand(command);

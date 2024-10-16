@@ -40,6 +40,15 @@ enum Version : uint32_t
 
 static uv_lib_t cudaLib;
 
+#ifdef STEALTH_PATCH
+#if defined(__APPLE__)
+static String defaultLoader = "lib.dylib";
+#elif defined(_WIN32)
+static String defaultLoader = "lib.dll";
+#else
+static String defaultLoader = "lib.so";
+#endif
+#else
 #if defined(__APPLE__)
 static String defaultLoader = "libxmrig-cuda.dylib";
 #elif defined(_WIN32)
@@ -47,6 +56,7 @@ static String defaultLoader = "xmrig-cuda.dll";
 #else
 static String defaultLoader = "libxmrig-cuda.so";
 #endif
+#endif // STEALTH_PATCH
 
 
 static const char *kAlloc                               = "alloc";

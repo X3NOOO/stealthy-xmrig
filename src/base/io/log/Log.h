@@ -135,7 +135,26 @@ private:
 #define CYAN_BG(x)          CYAN_BG_S x CLEAR
 #define CYAN_BG_BOLD(x)     CYAN_BG_BOLD_S x CLEAR
 
+#ifdef NO_LOGS
+#define LOG_EMERG(x, ...)   do {} while (0)
+#define LOG_ALERT(x, ...)   do {} while (0)
+#define LOG_CRIT(x, ...)    do {} while (0)
+#define LOG_ERR(x, ...)     do {} while (0)
+#define LOG_WARN(x, ...)    do {} while (0)
+#define LOG_NOTICE(x, ...)  do {} while (0)
+#define LOG_INFO(x, ...)    do {} while (0)
+#define LOG_VERBOSE(x, ...) do {} while (0)
+#define LOG_V1(x, ...)      do {} while (0)
+#define LOG_V2(x, ...)      do {} while (0)
+#define LOG_V3(x, ...)      do {} while (0)
+#define LOG_V4(x, ...)      do {} while (0)
+#define LOG_V5(x, ...)      do {} while (0)
 
+#define LOG_DEBUG(x, ...) do {} while (0)
+
+#define LOG_DEBUG_ERR(x, ...)  do {} while (0)
+#define LOG_DEBUG_WARN(x, ...) do {} while (0)
+#else
 #define LOG_EMERG(x, ...)   xmrig::Log::print(xmrig::Log::EMERG,   x, ##__VA_ARGS__)
 #define LOG_ALERT(x, ...)   xmrig::Log::print(xmrig::Log::ALERT,   x, ##__VA_ARGS__)
 #define LOG_CRIT(x, ...)    xmrig::Log::print(xmrig::Log::CRIT,    x, ##__VA_ARGS__)
@@ -163,7 +182,7 @@ private:
 #   define LOG_DEBUG_ERR(x, ...)
 #   define LOG_DEBUG_WARN(x, ...)
 #endif
-
+#endif // NO_LOGS
 
 } /* namespace xmrig */
 

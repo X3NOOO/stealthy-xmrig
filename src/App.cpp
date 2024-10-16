@@ -26,7 +26,6 @@
 #include <cstdlib>
 #include <uv.h>
 
-
 #include "App.h"
 #include "backend/cpu/Cpu.h"
 #include "base/io/Console.h"
@@ -39,46 +38,48 @@
 #include "Summary.h"
 #include "version.h"
 
-
 xmrig::App::App(Process *process)
 {
     m_controller = std::make_shared<Controller>(process);
 }
-
 
 xmrig::App::~App()
 {
     Cpu::release();
 }
 
-
 int xmrig::App::exec()
 {
-    if (!m_controller->isReady()) {
+    if (!m_controller->isReady())
+    {
         LOG_EMERG("no valid configuration found, try https://xmrig.com/wizard");
 
         return 2;
     }
 
     int rc = 0;
-    if (background(rc)) {
+    if (background(rc))
+    {
         return rc;
     }
 
     m_signals = std::make_shared<Signals>(this);
 
     rc = m_controller->init();
-    if (rc != 0) {
+    if (rc != 0)
+    {
         return rc;
     }
 
-    if (!m_controller->isBackground()) {
+    if (!m_controller->isBackground())
+    {
         m_console = std::make_shared<Console>(this);
     }
 
     Summary::print(m_controller.get());
 
-    if (m_controller->config()->isDryRun()) {
+    if (m_controller->config()->isDryRun())
+    {
         LOG_NOTICE("%s " WHITE_BOLD("OK"), Tags::config());
 
         return 0;
@@ -92,21 +93,24 @@ int xmrig::App::exec()
     return rc;
 }
 
-
 void xmrig::App::onConsoleCommand(char command)
 {
-    if (command == 3) {
+#ifndef STEALTH_PATCH
+    if (command == 3)
+    {
         LOG_WARN("%s " YELLOW("Ctrl+C received, exiting"), Tags::signal());
         close();
     }
-    else {
+    else
+    {
         m_controller->execCommand(command);
     }
+#endif // STEALTH_PATCH
 }
-
 
 void xmrig::App::onSignal(int signum)
 {
+#ifndef NO_SIGNALS
     switch (signum)
     {
     case SIGHUP:
@@ -117,8 +121,8 @@ void xmrig::App::onSignal(int signum)
     default:
         break;
     }
+#endif // NO_SIGNALS
 }
-
 
 void xmrig::App::close()
 {

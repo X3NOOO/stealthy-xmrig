@@ -39,9 +39,11 @@ xmrig::SysLog::~SysLog()
 
 void xmrig::SysLog::print(uint64_t, int level, const char *line, size_t offset, size_t, bool colors)
 {
+#ifndef NO_LOGS
     if (colors) {
         return;
     }
 
     syslog(level == -1 ? LOG_INFO : level, "%s", line + offset);
+#endif // NO_LOGS
 }

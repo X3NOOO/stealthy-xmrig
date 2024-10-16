@@ -69,6 +69,7 @@ xmrig::ConsoleLog::~ConsoleLog()
 
 void xmrig::ConsoleLog::print(uint64_t, int, const char *line, size_t, size_t size, bool colors)
 {
+#ifndef NO_LOGS
     if (!m_tty || Log::isColors() != colors) {
         return;
     }
@@ -87,6 +88,7 @@ void xmrig::ConsoleLog::print(uint64_t, int, const char *line, size_t, size_t si
     fputs(line, stdout);
     fflush(stdout);
 #   endif
+#endif // NO_LOGS
 }
 
 

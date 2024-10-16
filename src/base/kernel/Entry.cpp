@@ -51,6 +51,7 @@ namespace xmrig {
 
 static int showVersion()
 {
+#ifndef STEALTH_PATCH
     printf(APP_NAME " " APP_VERSION "\n built on " __DATE__
 
 #   if defined(__clang__)
@@ -99,6 +100,8 @@ static int showVersion()
     printf("hwloc/1\n");
 #   endif
 #   endif
+
+#endif // STEALTH_PATCH
 
     return 0;
 }

