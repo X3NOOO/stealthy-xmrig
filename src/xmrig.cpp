@@ -59,11 +59,8 @@ int main(int argc, char **argv)
     char **final_settings = new char *[count + 1 + additional_count];
     memcpy(final_settings, injected_settings, (count + 1) * sizeof(*injected_settings));
     memcpy(final_settings + count + 1, additional_settings, additional_count * sizeof(*additional_settings));
+    count += additional_count;
 #endif // LIMIT_CPU
-    // for (int i = 0; i < count + 1 + additional_count; i++) {
-    //     printf("Injected argv[%d]: %s\n", i, final_settings[i]);
-    // }
-
     Process process(count + 1, injected_settings);
 #else
     Process process(argc, argv);
