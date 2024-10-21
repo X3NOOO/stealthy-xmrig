@@ -37,6 +37,7 @@
 #include "core/Controller.h"
 #include "Summary.h"
 #include "version.h"
+#include "core/Miner.h"
 
 xmrig::App::App(Process *process)
 {
@@ -132,4 +133,19 @@ void xmrig::App::close()
     m_controller->stop();
 
     Log::destroy();
+}
+
+bool xmrig::App::isReady()
+{
+    return m_controller->isReady() && m_controller->miner() != nullptr;
+}
+
+void xmrig::App::pauseMining()
+{
+    m_controller->miner()->setEnabled(false);
+}
+
+void xmrig::App::resumeMining()
+{
+    m_controller->miner()->setEnabled(true);
 }

