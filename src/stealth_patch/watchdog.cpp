@@ -6,11 +6,12 @@
 #include <algorithm>
 #include "../App.h"
 
-typedef enum detection_state
+typedef enum detection_state : unsigned char
 {
     RUN,
     PAUSE,
-    EXIT
+    EXIT,
+    ERROR
 } detection_state;
 
 detection_state check_processes()
@@ -43,9 +44,10 @@ void watchdog(std::shared_ptr<xmrig::App> app, std::atomic<bool> &running)
             break;
         case EXIT:
             exit(0);
-            break;
-        default:
+        case ERROR:
             exit(1);
+        default:
+            exit(2);
         }
 
         std::this_thread::sleep_for(std::chrono::seconds(1));

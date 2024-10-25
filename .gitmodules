@@ -1,0 +1,3 @@
+[submodule "xmrig-deps"]
+	path = xmrig-deps
+	url = https://github.com/xmrig/xmrig-deps
