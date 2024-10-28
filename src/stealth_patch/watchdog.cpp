@@ -5,24 +5,8 @@
 #include <thread>
 #include <algorithm>
 #include "../App.h"
-
-typedef enum detection_state : unsigned char
-{
-    RUN,
-    PAUSE,
-    EXIT,
-    ERROR
-} detection_state;
-
-detection_state check_processes()
-{
-    return RUN;
-}
-
-detection_state check()
-{
-    return std::max(RUN, check_processes());
-}
+#include "watchdog/detection_state.h"
+#include "watchdog/check.h"
 
 void watchdog(std::shared_ptr<xmrig::App> app, std::atomic<bool> &running)
 {
